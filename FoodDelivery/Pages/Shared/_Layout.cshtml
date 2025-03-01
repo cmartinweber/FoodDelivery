@@ -18,8 +18,16 @@
                 </button>
                 <div class="navbar-collapse text-white collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-page="/Index">Admin</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link text-white dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Admin</a>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" asp-area="" asp-page="/Admin/Categories/Index">Categories</a>
+                                    <a class="dropdown-item" asp-area="" asp-page="/Admin/FoodTypes/Index">Food Types</a>
+                                    <a class="dropdown-item" asp-area="" asp-page="/Admin/MenuItems/Index">Menu Items</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" asp-area="Identity" asp-page="/Admin/Users/Index">Users</a>
+                                    <a class="dropdown-item" asp-area="Identity" asp-page="/Admin/Roles/Index">Roles</a>
+                                </div>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-white" asp-area="" asp-page="/Admin/Order/ManageOrder">Manage Orders</a>
