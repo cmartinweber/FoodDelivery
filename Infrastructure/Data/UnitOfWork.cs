@@ -18,7 +18,8 @@ namespace Infrastructure.Data
         }
 
         public IGenericRepository<Category> _Category;
-        
+        public IGenericRepository<FoodType> _FoodType;
+
         public IGenericRepository<Category> Category
         {
             get
@@ -28,6 +29,18 @@ namespace Infrastructure.Data
                     _Category = new GenericRepository<Category>(_dbContext);
                 }
                 return _Category;
+            }
+        }
+
+        public IGenericRepository<FoodType> FoodType
+        {
+            get
+            {
+                if (_FoodType == null)
+                {
+                    _FoodType = new GenericRepository<FoodType>(_dbContext);
+                }
+                return _FoodType;
             }
         }
 

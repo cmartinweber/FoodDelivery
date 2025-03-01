@@ -12,6 +12,6 @@ namespace FoodDelivery.Pages.Admin.Categories
 {
     public class IndexModel : PageModel
     {
-        
+        //intenionally left blank
     }
 }
