@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ApplicationCore.Interfaces
 {
-    public interface IWorkOfWork
+    public interface IUnitOfWork
     {
         public IGenericRepository<Category> Category { get; }
 
