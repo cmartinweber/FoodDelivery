@@ -2,41 +2,33 @@
 @model FoodDelivery.Pages.Admin.Categories.IndexModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Categories";
 }
 
-<h1>Index</h1>
+<h1>Categories</h1>
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
-<table class="table">
+<div class="container">
+    <div class="row">
+        <div class="col-12 text-end">
+            <a asp-page="Upsert" asp-route-itemid="0" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i>&nbsp;Create New
+            </a>
+        </div>
+    </div>
+</div>
+<table id="DT_load" class="table table-striped table bordered">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Category[0].Name)
+                Category Name
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Category[0].DisplayOrder)
+                Display Order
             </th>
             <th></th>
         </tr>
     </thead>
-    <tbody>
-@foreach (var item in Model.Category) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DisplayOrder)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.ID">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.ID">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.ID">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
 </table>
+@section Scripts{
+    <script src="~/js/category.js"></script>
+}
