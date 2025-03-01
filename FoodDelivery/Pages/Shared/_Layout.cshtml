@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - Food Delivery</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <script src="https://kit.fontawesome.com/1c1eae9dd5.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <header>
@@ -36,7 +37,7 @@
                             <a class="nav-link text-white" asp-area="" asp-page="/Admin/Order/OrderList">Order Deliveries</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-page="/Customer/Cart/Index">Shopping Cart Icon (0)</a>
+                            <a class="nav-link text-white" asp-area="" asp-page="/Customer/Cart/Index"><i class="fa-solid fa-cart-shopping"></i> (0)</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />
