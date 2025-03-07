@@ -13,7 +13,7 @@ function loadList() {
         },
         "columns": [
             { data: "name", width: "25%" },
-            { data: "price", render: $.fn.dataTable.render.number(',',',','.',2,"$"), width: "30%" },
+            { data: "price", render: $.fn.dataTable.render.number(',','.',2,"$"), width: "30%" },
             { data: "category.name", width: "25%" },
             { data: "foodType.name", width: "20%" },
             {
