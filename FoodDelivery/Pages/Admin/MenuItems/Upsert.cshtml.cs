@@ -81,6 +81,12 @@ namespace FoodDelivery.Pages.Admin.MenuItems
                     MenuItem.Image = @"\images\menuitems\" + fileName + extension;
                 }
 
+                // Set a default description if no description is provided
+                if (string.IsNullOrEmpty(MenuItem.Description))
+                {
+                    MenuItem.Description = "No description provided.";
+                }
+
                 //add the MenuItem to the database
                 _unitOfWork.MenuItem.Add(MenuItem);
             }
@@ -124,6 +130,12 @@ namespace FoodDelivery.Pages.Admin.MenuItems
                 {
                     //add image from the existing database item to the item we're updating
                     MenuItem.Image = objFromDb.Image;
+                }
+
+                // Set a default description if no description is provided
+                if (string.IsNullOrEmpty(MenuItem.Description))
+                {
+                    MenuItem.Description = "No description provided.";
                 }
 
                 //update the existing item
