@@ -113,6 +113,25 @@
             plugins: "lists",
             menubare: "file edit format"
         });
+
+        function ValidateInput(){
+            if(document.getElementById("uploadImgBox").value == ""){
+                swal('Error', "Please select an image to upload", 'error');
+                return false;
+            }
+
+            if($('#ddlCategory option:selected').val() == 0){
+                swal('Error', "Please select a category", 'error');
+                return false;
+            }
+
+            if($('#ddlFoodType option:selected').val() == 0){
+                swal('Error', "Please select a food type", 'error');
+                return false;
+            }
+
+            return true;
+        }
     </script>
 
 }
