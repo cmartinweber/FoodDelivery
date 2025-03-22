@@ -1,4 +1,5 @@
 ﻿using ApplicationCore.Interfaces;
+using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,9 +9,9 @@ namespace FoodDelivery.Controllers
     [ApiController]
     public class MenuItemController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly UnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _hostingEnv;
-        public MenuItemController(IUnitOfWork unitOfWork, IWebHostEnvironment hostingEnv)
+        public MenuItemController(UnitOfWork unitOfWork, IWebHostEnvironment hostingEnv)
         {
             _unitOfWork = unitOfWork;
             _hostingEnv = hostingEnv;
