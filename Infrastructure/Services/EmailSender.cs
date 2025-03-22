@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
-using Org.BouncyCastle.Crypto.Macs;
 namespace Infrastructure.Services
 {
     public class EmailSender : IEmailSender
