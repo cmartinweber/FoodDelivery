@@ -1,23 +1,68 @@
-﻿using ApplicationCore.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ApplicationCore.Interfaces;
+using ApplicationCore.Models;
+using Infrastructure.Utilities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data
 {
-    public static class DbInitializer
+    public class DbInitializer : IDbInitializer
     {
-        public static void Initialize(ApplicationDbContext context)
-        {
-            context.Database.EnsureCreated();
+        private readonly ApplicationDbContext _db;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-            //Look for any categories
-            if (context.Category.Any())
+        public DbInitializer(ApplicationDbContext db, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+        {
+            _db = db;
+            _userManager = userManager;
+            _roleManager = roleManager;
+        }
+        public void Initialize()
+        {
+            _db.Database.EnsureCreated();
+
+            //migrations if they are not applied
+            try
             {
-                return;
+                if (_db.Database.GetPendingMigrations().Any())
+                {
+                    _db.Database.Migrate();
+                }
             }
+            catch (Exception)
+            {
+
+            }
+            if (_db.Category.Any())
+            {
+                return; //DB has been seeded
+            }
+
+            //create roles if they are not created
+            //SD is a “Static Details” class we will create in Utility to hold constant strings for Roles
+
+            _roleManager.CreateAsync(new IdentityRole(SD.AdminRole)).GetAwaiter().GetResult();
+            _roleManager.CreateAsync(new IdentityRole(SD.DriverRole)).GetAwaiter().GetResult();
+            _roleManager.CreateAsync(new IdentityRole(SD.KitchenRole)).GetAwaiter().GetResult();
+            _roleManager.CreateAsync(new IdentityRole(SD.CustomerRole)).GetAwaiter().GetResult();
+
+            //Create at least one "Super Admin" or “Admin”.  Repeat the process for other users you want to seed
+
+            _userManager.CreateAsync(new ApplicationUser
+            {
+                UserName = "christianmartin@mail.weber.edu",
+                Email = "christianmartin@mail.weber.edu",
+                FirstName = "Christian",
+                LastName = "Martin",
+                PhoneNumber = "5555555555",
+            }, "Admin123*").GetAwaiter().GetResult();
+
+            ApplicationUser user = _db.ApplicationUser.FirstOrDefault(u => u.Email == "christianmartin@mail.weber.edu");
+
+            _userManager.AddToRoleAsync(user, SD.AdminRole).GetAwaiter().GetResult();
+
+
             var Category = new List<Category>
                 {
                 new Category{ Name = "Soup", DisplayOrder = 1},
@@ -28,9 +73,9 @@ namespace Infrastructure.Data
                 };
             foreach (var c in Category)
             {
-                context.Category.Add(c);
+                _db.Category.Add(c);
             }
-            context.SaveChanges();
+            _db.SaveChanges();
 
             var foodtype = new List<FoodType>
                 {
@@ -42,10 +87,10 @@ namespace Infrastructure.Data
                 };
             foreach (var f in foodtype)
             {
-                context.FoodType.Add(f);
+                _db.FoodType.Add(f);
             }
 
-            context.SaveChanges();
+            _db.SaveChanges();
         }
     }
 }
