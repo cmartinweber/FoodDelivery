@@ -1,5 +1,6 @@
 using ApplicationCore.Interfaces;
 using ApplicationCore.Models;
+using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,7 +9,7 @@ namespace FoodDelivery.Pages.Admin.MenuItems
 {
     public class UpsertModel : PageModel
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly UnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _webHostEnvironment;
         [BindProperty]
         public MenuItem MenuItem { get; set; }
@@ -17,7 +18,7 @@ namespace FoodDelivery.Pages.Admin.MenuItems
         public IEnumerable<SelectListItem> CategoryList { get; set; }
         public IEnumerable<SelectListItem> FoodTypeList { get; set; }
 
-        public UpsertModel(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
+        public UpsertModel(UnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
             _unitOfWork = unitOfWork;
             _webHostEnvironment = webHostEnvironment; //helps find server path to wwwroot

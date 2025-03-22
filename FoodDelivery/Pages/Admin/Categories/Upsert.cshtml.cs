@@ -1,5 +1,5 @@
-using ApplicationCore.Interfaces;
 using ApplicationCore.Models;
+using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -7,12 +7,12 @@ namespace FoodDelivery.Pages.Admin.Categories
 {
     public class UpsertModel : PageModel
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly UnitOfWork _unitOfWork;
 
         [BindProperty]
         public Category CategoryObj { get; set; }
 
-        public UpsertModel(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+        public UpsertModel(UnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
 
         public IActionResult OnGet(int ? id)
         {

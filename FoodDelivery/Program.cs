@@ -18,7 +18,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
 builder.Services.AddRazorPages();
 
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<UnitOfWork>();
 builder.Services.AddScoped<DbInitializer>();
 
 var app = builder.Build();

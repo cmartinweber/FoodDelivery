@@ -1,4 +1,5 @@
 ﻿using ApplicationCore.Interfaces;
+using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,8 +9,8 @@ namespace FoodDelivery.Controllers
     [ApiController]
     public class CategoryController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public CategoryController(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+        private readonly UnitOfWork _unitOfWork;
+        public CategoryController(UnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
 
         [HttpGet]
         public IActionResult Get()
