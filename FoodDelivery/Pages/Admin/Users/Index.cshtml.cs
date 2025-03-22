@@ -34,5 +34,28 @@ namespace FoodDelivery.Pages.Admin.Users
                 UserRoles.Add(user.Id, userRole.ToList());
             }
         }
+
+        public async Task<IActionResult> OnPostLockUnlock(string id)
+        {
+            var user = _unitOfWork.ApplicationUser.Get(u => u.Id == id);
+            if(user.LockoutEnd == null)//unlocked
+            {
+                user.LockoutEnd =DateTime.Now.AddYears(100);
+                user.LockoutEnabled = true;
+            }
+            else if (user.LockoutEnd > DateTime.Now) //unlock
+            {
+                user.LockoutEnd = DateTime.Now;
+                user.LockoutEnabled = false;
+            }
+            else
+            {
+                user.LockoutEnd = DateTime.Now.AddYears(100);
+                user.LockoutEnabled = true;
+            }
+            _unitOfWork.ApplicationUser.Update(user);
+            await _unitOfWork.CommitAsync();
+            return RedirectToPage();
+        }
     }
 }
