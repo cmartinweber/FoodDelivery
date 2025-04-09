@@ -56,7 +56,7 @@
                             <a asp-page="Index" class="btn btn-success btn-square form-control btn-lg" style="height:50px;">Back to List</a>
                         </div>
                         <div class="col-12 col-md-6">
-                            @if (HttpContext?.Session != null && !string.IsNullOrEmpty(HttpContext.Session.GetString("UserLoggedIn")))
+                            @if (!string.IsNullOrEmpty(HttpContext.Session.GetString("UserLoggedIn")))
                             {
                                 <div class="col-12 col-md-6 pb-1">
                                     <button type="submit" value="Add to Cart" class="btn btn-primary btn-square form-control btn-lg" style="height:50px;">Add to Cart</button>
