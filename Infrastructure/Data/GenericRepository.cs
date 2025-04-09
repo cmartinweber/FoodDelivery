@@ -54,15 +54,15 @@ namespace Infrastructure.Data
                 IQueryable<T> queryable = _dbContext.Set<T>();
                 foreach (var includeProperty in includes.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    queryable = queryable.Include(includeProperty);
+                    queryable = queryable.Include(includeProperty.Trim());
                 }
                 if (asNoTracking)
                 { //read only copy for display purposes
-                    return _dbContext.Set<T>().AsNoTracking().Where(predicate).FirstOrDefault();
+                    return queryable.AsNoTracking().Where(predicate).FirstOrDefault();
                 }
                 else
                 { //it needs to be tracked
-                    return _dbContext.Set<T>().Where(predicate).FirstOrDefault();
+                    return queryable.Where(predicate).FirstOrDefault();
                 }
             }
         }
@@ -85,15 +85,15 @@ namespace Infrastructure.Data
                 IQueryable<T> queryable = _dbContext.Set<T>();
                 foreach (var includeProperty in includes.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    queryable = queryable.Include(includeProperty);
+                    queryable = queryable.Include(includeProperty.Trim());
                 }
                 if (asNoTracking)
                 { //read only copy for display purposes
-                    return await _dbContext.Set<T>().AsNoTracking().Where(predicate).FirstOrDefaultAsync();
+                    return await queryable.AsNoTracking().Where(predicate).FirstOrDefaultAsync();
                 }
                 else
                 { //it needs to be tracked
-                    return await _dbContext.Set<T>().Where(predicate).FirstOrDefaultAsync();
+                    return await queryable.Where(predicate).FirstOrDefaultAsync();
                 }
             }
         }
@@ -119,7 +119,7 @@ namespace Infrastructure.Data
             {//are included joins
                 foreach (var includeProperty in includes.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    queryable = queryable.Include(includeProperty);
+                    queryable = queryable.Include(includeProperty.Trim());
                 }
             }
             if (predicate == null)
@@ -157,7 +157,7 @@ namespace Infrastructure.Data
             {//are included joins
                 foreach (var includeProperty in includes.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    queryable = queryable.Include(includeProperty);
+                    queryable = queryable.Include(includeProperty.Trim());
                 }
             }
             if (predicate == null)
