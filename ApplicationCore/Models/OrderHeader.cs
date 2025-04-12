@@ -38,13 +38,13 @@ namespace ApplicationCore.Models
         [Display(Name = "Delivery Name")]
         public string DeliveryName { get; set; }
 
-        public string Comments { get; set; }
+        public string Comments { get; set; } = "No Comments";
 
         [Display(Name = "Phone Number")]
         public string PhoneNumber { get; set; }
 
         public string PaymentStatus { get; set; }
 
-        public string TransactionId { get; set; }
+        public string? TransactionId { get; set; }
     }
 }

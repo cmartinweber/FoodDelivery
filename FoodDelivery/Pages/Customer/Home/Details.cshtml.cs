@@ -1,5 +1,6 @@
 using ApplicationCore.Models;
 using Infrastructure.Data;
+using Infrastructure.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
@@ -64,6 +65,10 @@ namespace FoodDelivery.Pages.Customer.Home
             }
 
             _unitOfWork.Commit();
+
+            var updatedCart = _unitOfWork.ShoppingCart.List(u => u.ApplicationUserId == userId).ToList();
+            HttpContext.Session.SetInt32(SD.ShoppingCart, updatedCart.Count());
+
             return RedirectToPage("Index");
         }
     }

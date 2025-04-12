@@ -40,6 +40,9 @@ namespace FoodDelivery.Pages.Customer.Cart
                     cartList.MenuItem = _unitOfWork.MenuItem.Get(m => m.Id == cartList.MenuItemId);
                     OrderDetailsCart.OrderHeader.OrderTotal += (cartList.MenuItem.Price * cartList.Count);
                 }
+
+                var uniqueCount = _unitOfWork.ShoppingCart.List(u => u.ApplicationUserId == claim.Value).Count();
+                HttpContext.Session.SetInt32(SD.ShoppingCart, uniqueCount);
             }
         }
 
@@ -71,6 +74,9 @@ namespace FoodDelivery.Pages.Customer.Cart
             _unitOfWork.ShoppingCart.Update(cart);
 
             _unitOfWork.Commit();
+
+            var cnt = _unitOfWork.ShoppingCart.List(u => u.ApplicationUserId == cart.ApplicationUserId).ToList().Count();
+            HttpContext.Session.SetInt32(SD.ShoppingCart, cnt);
 
             return RedirectToPage("/Customer/Cart/Index");
         }
