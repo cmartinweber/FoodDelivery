@@ -88,21 +88,29 @@ namespace FoodDelivery.Pages.Customer.Cart
 
             //calling stripe pop up api through JS
 
-            if(stripeToken != null)
+            if (stripeToken != null)
             {
-                var options = new ChargeCreateOptions
+                var paymentIntentService = new PaymentIntentService();
+                var paymentIntentOptions = new PaymentIntentCreateOptions
                 {
-                    Amount = Convert.ToInt32(OrderDetailsCart.OrderHeader.OrderTotal * 100), //requires in cents
+                    Amount = Convert.ToInt32(OrderDetailsCart.OrderHeader.OrderTotal * 100), // Amount in cents
                     Currency = "usd",
-                    Description = "Order Id: " + OrderDetailsCart.OrderHeader.Id,
-                    Source = stripeToken,
+                    PaymentMethod = stripeToken, // Use the token as the payment method
+                    ConfirmationMethod = "manual",
+                    Confirm = true,
+                    ReturnUrl = Url.Page(
+                        pageName: "/Customer/Cart/OrderConfirmation",
+                        pageHandler: null, // Required placeholder
+                        values: new { orderId = OrderDetailsCart.OrderHeader.Id },
+                        protocol: Request.Scheme
+                    )
                 };
 
-                var service = new ChargeService();
-                Charge charge = service.Create(options);
-                OrderDetailsCart.OrderHeader.TransactionId = charge.Id;
+                var paymentIntent = paymentIntentService.Create(paymentIntentOptions);
 
-                if(charge.Status.ToLower() == "succeeded")
+                OrderDetailsCart.OrderHeader.TransactionId = paymentIntent.Id;
+
+                if (paymentIntent.Status == "succeeded")
                 {
                     OrderDetailsCart.OrderHeader.PaymentStatus = SD.PaymentStatusApproved;
                 }
@@ -111,8 +119,17 @@ namespace FoodDelivery.Pages.Customer.Cart
                     OrderDetailsCart.OrderHeader.PaymentStatus = SD.PaymentStatusRejected;
                 }
             }
+
             _unitOfWork.Commit();
-            return RedirectToPage("/Customer/Cart/OrderConfirmation", new { id = OrderDetailsCart.OrderHeader.Id });
+
+            var cartItems = _unitOfWork.ShoppingCart.List(c => c.ApplicationUserId == claim.Value).ToList();
+            foreach (var cartItem in cartItems)
+            {
+                _unitOfWork.ShoppingCart.Delete(cartItem);
+            }
+            _unitOfWork.Commit();
+
+            return RedirectToPage("/Customer/Cart/OrderConfirmation", new { orderId = OrderDetailsCart.OrderHeader.Id });
         }
     }
 }
