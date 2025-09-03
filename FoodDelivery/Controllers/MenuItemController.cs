@@ -19,13 +19,32 @@ namespace FoodDelivery.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Json(new { data = _unitOfWork.MenuItem.List(null, null, "Category,FoodType") });
+            var menuItems = _unitOfWork.MenuItem.List(
+                null,
+                null,
+                "Category,MenuItemFoodTypes.FoodType"
+            );
+            var data = menuItems.Select(m => new
+            {
+                m.Id,
+                m.Name,
+                m.Price,
+                Category = new { m.Category.ID, m.Category.Name },
+                MenuItemFoodTypes = m.MenuItemFoodTypes.Select(ft => new
+                {
+                    ft.FoodTypeId,
+                    FoodType = new { ft.FoodType.Id, ft.FoodType.Name }
+                }),
+                m.Image
+            });
+
+            return Json(new { data });
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var objFromDb = _unitOfWork.MenuItem.Get(c => c.Id == id);
+            var objFromDb = _unitOfWork.MenuItem.Get(c => c.Id == id, true, "MenuItemFoodTypes");
             if (objFromDb == null)
             {
                 return Json(new { success = false, message = "Error while deleting" });
@@ -37,6 +56,10 @@ namespace FoodDelivery.Controllers
                 {
                     System.IO.File.Delete(imgPath);
                 }
+            }
+            if(objFromDb.MenuItemFoodTypes != null && objFromDb.MenuItemFoodTypes.Any())
+            {
+                _unitOfWork.MenuItemFoodType.Delete(objFromDb.MenuItemFoodTypes);
             }
             _unitOfWork.MenuItem.Delete(objFromDb);
             _unitOfWork.Commit();

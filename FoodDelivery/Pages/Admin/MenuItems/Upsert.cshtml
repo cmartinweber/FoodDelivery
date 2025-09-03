@@ -64,14 +64,21 @@
                 </div>
                 <div class="form-group row">
                     <div class="col-3">
-                        <label asp-for="MenuItem.FoodTypeID"></label>
+                        <label>Food Types</label>
                     </div>
                     <div class="col-9">
-                        @Html.DropDownListFor(m => m.MenuItem.FoodTypeID,
-                                 Model.FoodTypeList,
-                                 " - Please select a food type - ",
-                                 new { @class = "form-control", @id = "ddlFoodType" })
-                        <span class="text-danger" asp-validation-for="MenuItem.FoodTypeID"></span>
+                        @foreach (var foodType in Model.FoodTypeList)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       name="SelectedFoodTypeIds"
+                                       value="@foodType.Value"
+                                       @(Model.SelectedFoodTypeIds.Contains(int.Parse(foodType.Value)) ? "checked" : "") />
+
+                                <label class="form-check-label">@foodType.Text</label>
+                            </div>
+                        }
                     </div>
                 </div>
                 <div class="form-group row">

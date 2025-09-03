@@ -14,6 +14,9 @@ namespace FoodDelivery.Pages.Admin.MenuItems
         [BindProperty]
         public MenuItem MenuItem { get; set; }
 
+        [BindProperty]
+        public List<int> SelectedFoodTypeIds { get; set; } = new List<int>();
+
         //creating these for a dropdown
         public IEnumerable<SelectListItem> CategoryList { get; set; }
         public IEnumerable<SelectListItem> FoodTypeList { get; set; }
@@ -27,28 +30,44 @@ namespace FoodDelivery.Pages.Admin.MenuItems
         {
             if (id != null)//Edit mode and I also track changes (true)
             {
-                MenuItem = _unitOfWork.MenuItem.Get(u => u.Id == id, true);
+                MenuItem = _unitOfWork.MenuItem.Get(
+                    u => u.Id == id,
+                    true,
+                    "MenuItemFoodTypes.FoodType"
+                );
 
-                var categories = _unitOfWork.Category.List();
-                var foodTypes = _unitOfWork.FoodType.List();
-
-                CategoryList = categories.Select(c => new SelectListItem
+                if (MenuItem != null)
                 {
-                    Value = c.ID.ToString(),
-                    Text = c.Name
-                });
-
-                FoodTypeList = foodTypes.Select(f => new SelectListItem
+                    SelectedFoodTypeIds = MenuItem.MenuItemFoodTypes?
+                    .Select(m => m.FoodTypeId)
+                    .ToList() ?? new List<int>();
+                }
+                else
                 {
-                    Value = f.Id.ToString(),
-                    Text = f.Name
-                });
+                    MenuItem = new MenuItem();
+                    SelectedFoodTypeIds = new List<int>();
+                }
             }
-
-            if (MenuItem == null)//new upsert
+            else
             {
-                MenuItem = new(); //instantiate a new instance
+                MenuItem = new MenuItem();
+                SelectedFoodTypeIds = new List<int>();
             }
+
+            var categories = _unitOfWork.Category.List();
+            var foodTypes = _unitOfWork.FoodType.List();
+
+            CategoryList = categories.Select(c => new SelectListItem
+            {
+                Value = c.ID.ToString(),
+                Text = c.Name
+            });
+
+            FoodTypeList = foodTypes.Select(f => new SelectListItem
+            {
+                Value = f.Id.ToString(),
+                Text = f.Name
+            });
         }
 
         public IActionResult OnPost(int? id)
@@ -88,6 +107,20 @@ namespace FoodDelivery.Pages.Admin.MenuItems
                     MenuItem.Description = "No description provided.";
                 }
 
+                if (MenuItem.MenuItemFoodTypes == null)
+                {
+                    MenuItem.MenuItemFoodTypes = new List<MenuItemFoodType>();
+                }
+
+
+                foreach (var foodTypeId in SelectedFoodTypeIds)
+                {
+                    MenuItem.MenuItemFoodTypes.Add(new MenuItemFoodType
+                    {
+                        FoodTypeId = foodTypeId
+                    });
+                }
+
                 //add the MenuItem to the database
                 _unitOfWork.MenuItem.Add(MenuItem);
             }
@@ -95,7 +128,17 @@ namespace FoodDelivery.Pages.Admin.MenuItems
             else
             {
                 //get the original menu item from DB table (since tracking and binding is on)
-                var objFromDb = _unitOfWork.MenuItem.Get(m => m.Id == MenuItem.Id, true);
+                // Make sure to include the join table and FoodType navigation
+                var objFromDb = _unitOfWork.MenuItem.Get(
+                    m => m.Id == MenuItem.Id,
+                    true,
+                    "MenuItemFoodTypes"
+                );
+
+                if (objFromDb.MenuItemFoodTypes == null)
+                {
+                    objFromDb.MenuItemFoodTypes = new List<MenuItemFoodType>();
+                }
 
                 //was there an image submitted with the form
                 if (files.Count > 0)
@@ -139,8 +182,33 @@ namespace FoodDelivery.Pages.Admin.MenuItems
                     MenuItem.Description = "No description provided.";
                 }
 
+                // Remove existing join records from DB
+                var existingFoodTypes = _unitOfWork.MenuItemFoodType
+                    .List(mft => mft.MenuItemId == objFromDb.Id)
+                    .ToList();
+
+                if (existingFoodTypes.Any())
+                {
+                    _unitOfWork.MenuItemFoodType.Delete(existingFoodTypes);
+                }
+
+                // Now add the selected ones
+                foreach (var foodTypeId in SelectedFoodTypeIds)
+                {
+                    _unitOfWork.MenuItemFoodType.Add(new MenuItemFoodType
+                    {
+                        MenuItemId = objFromDb.Id,
+                        FoodTypeId = foodTypeId
+                    });
+                }
+
+                objFromDb.Name = MenuItem.Name;
+                objFromDb.Price = MenuItem.Price;
+                objFromDb.Description = MenuItem.Description;
+                objFromDb.CategoryId = MenuItem.CategoryId;
+
                 //update the existing item
-                _unitOfWork.MenuItem.Update(MenuItem);
+                _unitOfWork.MenuItem.Update(objFromDb);
             }
 
                 //Save Changes to DB
