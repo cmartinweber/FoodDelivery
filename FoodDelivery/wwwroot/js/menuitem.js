@@ -15,7 +15,15 @@ function loadList() {
             { data: "name", width: "25%" },
             { data: "price", render: $.fn.dataTable.render.number(',','.',2,"$"), width: "15%" },
             { data: "category.name", width: "15%" },
-            { data: "foodType.name", width: "15%" },
+            {
+                data: "menuItemFoodTypes",
+                render: function (data) {
+                    if (!data || data.length === 0) return "<em>None</em>";
+                    let listItems = data.map(ft => `<li>${ft.foodType.name}</li>`).join("");
+                    return `<ul>${listItems}</ul>`;
+                },
+                width: "20%"
+            },
             {
                 data: "id", width: "30%",
                 "render": function (data) {
