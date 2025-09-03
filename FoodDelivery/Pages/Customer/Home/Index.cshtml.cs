@@ -17,7 +17,7 @@ namespace FoodDelivery.Pages.Customer.Home
 
         public void OnGet()
         {
-            MenuItemList = _unitOfWork.MenuItem.List(null, null, "Category,FoodType").ToList();
+            MenuItemList = _unitOfWork.MenuItem.List(null, null, "Category,MenuItemFoodTypes.FoodType").ToList();
             CategoryList = _unitOfWork.Category.List(null, c => c.DisplayOrder, null).ToList();
         }
     }

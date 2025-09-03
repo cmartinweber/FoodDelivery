@@ -31,7 +31,7 @@ namespace FoodDelivery.Pages.Customer.Home
                 var claim = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier);
                 HttpContext.Session.SetString("UserLoggedIn", claim?.Value ?? string.Empty);
 
-                objMenuItem = _unitOfWork.MenuItem.Get(m => m.Id == id, false, "Category,FoodType");
+                objMenuItem = _unitOfWork.MenuItem.Get(m => m.Id == id, false, "Category,MenuItemFoodTypes.FoodType");
                 objCart = new ShoppingCart { MenuItemId = id.Value };
             }
             else
