@@ -25,6 +25,7 @@ namespace Infrastructure.Data
         public IGenericRepository<ShoppingCart> _ShoppingCart;
         public IGenericRepository<OrderHeader> _OrderHeader;
         public IGenericRepository<OrderDetails> _OrderDetails;
+        public IGenericRepository<PromoCode> _PromoCode;
 
         public IGenericRepository<Category> Category
         {
@@ -119,6 +120,18 @@ namespace Infrastructure.Data
                     _OrderDetails = new GenericRepository<OrderDetails>(_dbContext);
                 }
                 return _OrderDetails;
+            }
+        }
+
+        public IGenericRepository<PromoCode> PromoCode
+        {
+            get
+            {
+                if (_PromoCode == null)
+                {
+                    _PromoCode = new GenericRepository<PromoCode>(_dbContext);
+                }
+                return _PromoCode;
             }
         }
 
