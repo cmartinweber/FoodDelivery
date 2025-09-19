@@ -16,6 +16,7 @@ namespace ApplicationCore.Interfaces
         public IGenericRepository<ShoppingCart> ShoppingCart { get; }
         public IGenericRepository<OrderHeader> OrderHeader { get; }
         public IGenericRepository<OrderDetails> OrderDetails { get; }
+        public IGenericRepository<PromoCode> PromoCode { get; }
 
         //save changes to data source
         int Commit();
