@@ -6,6 +6,8 @@
 
 <div class="border backgroundWhite container p-3">
     <form method="post">
+        <input type="hidden" asp-for="PromoCodeObj.Id" />
+
         <div class="row">
             <div class="col-12">
                 <h2 class="text-primary">@(Model.PromoCodeObj.Id == 0 ? "Create" : "Edit") Promo Code</h2>
@@ -32,13 +34,13 @@
 
                 <div class="form-group">
                     <label asp-for="PromoCodeObj.DiscountValue"></label>
-                    <input asp-for="PromoCodeObj.DiscountValue" class="form-control" />
+                    <input asp-for="PromoCodeObj.DiscountValue" class="form-control" type="number" step="0.01" />
                     <span asp-validation-for="PromoCodeObj.DiscountValue" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
                     <label asp-for="PromoCodeObj.MinimumOrderValue"></label>
-                    <input asp-for="PromoCodeObj.MinimumOrderValue" class="form-control" />
+                    <input asp-for="PromoCodeObj.MinimumOrderValue" class="form-control" type="number" step="0.01" />
                 </div>
             </div>
 
@@ -55,7 +57,7 @@
 
                 <div class="form-group">
                     <label asp-for="PromoCodeObj.UsesRemaining"></label>
-                    <input asp-for="PromoCodeObj.UsesRemaining" class="form-control" />
+                    <input asp-for="PromoCodeObj.UsesRemaining" class="form-control" type="number" />
                 </div>
 
                 <div class="form-check mt-3">

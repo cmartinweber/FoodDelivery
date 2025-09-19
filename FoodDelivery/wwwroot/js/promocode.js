@@ -14,7 +14,13 @@ function loadList() {
         "columns": [
             { "data": "code", "width": "10%" },
             { "data": "description", "width": "15%" },
-            { "data": "discountType", "width": "10%" },
+            {
+                "data": "discountType",
+                "render": function (data) {
+                    return data == 0 ? "Percentage" : "Fixed Amount";
+                },
+                "width": "10%"
+            },
             { "data": "discountValue", "width": "10%" },
             {
                 "data": "validFrom",

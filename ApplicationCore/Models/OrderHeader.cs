@@ -46,5 +46,12 @@ namespace ApplicationCore.Models
         public string PaymentStatus { get; set; }
 
         public string? TransactionId { get; set; }
+
+        [Display(Name = "Discount Amount")]
+        public double DiscountAmount { get; set; } = 0;
+
+        [Display(Name = "Promo Code")]
+        public string? PromoCode { get; set; }
+
     }
 }

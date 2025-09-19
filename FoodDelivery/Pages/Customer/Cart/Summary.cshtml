@@ -1,31 +1,31 @@
 ﻿@page
 @model FoodDelivery.Pages.Customer.Cart.SummaryModel
-@using Infrastructure.Services
 @using Infrastructure.Utilities
-@using Microsoft.Extensions.Options
-@inject IOptions<Infrastructure.Services.StripeSettings> Stripe
+@inject Microsoft.Extensions.Options.IOptions<Infrastructure.Services.StripeSettings> Stripe
 
 @{
     ViewData["Title"] = "Summary";
 }
 
-<form id="payment-form" method="post">
-    @if (Model.OrderDetailsCart.ListCart.Count > 0)
-    {
+@if (Model.OrderDetailsCart.ListCart.Count > 0)
+{
+    <form id="checkout-form" method="post">
         <input asp-for="@Model.OrderDetailsCart.ListCart[0].ApplicationUserId" hidden />
         <div class="backgroundWhiteBorder">
             <div class="container">
                 <div class="card">
                     <div class="card-header bg-dark text-light ml-0 row container">
                         <div class="col-6">
-                            <i class="fa fa-shopping-cart"></i> &nbsp;
-                            Order Summary
+                            <i class="fa fa-shopping-cart"></i> &nbsp; Order Summary
                         </div>
                         <div class="col-6 text-end">
                             <a asp-page="Index" class="btn btn-outline-info btn-sm">Back to Cart</a>
                         </div>
                     </div>
+
                     <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
                         <div class="container rounded p-2">
                             <div class="row">
                                 <div class="col-12 col-lg-6 pb-4">
@@ -34,44 +34,51 @@
                                             <span class="text-info">Delivery Details:</span>
                                         </h4>
                                     </div>
+
                                     <div class="row my-1">
-                                        <div class="col-3">
-                                            <label>Name</label>
-                                        </div>
+                                        <div class="col-3"><label asp-for="OrderDetailsCart.OrderHeader.DeliveryName"></label></div>
                                         <div class="col-9">
-                                            <input id="txtName" asp-for="@Model.OrderDetailsCart.OrderHeader.DeliveryName" type="text" class="form-control" />
+                                            <input id="txtName" asp-for="OrderDetailsCart.OrderHeader.DeliveryName" class="form-control" />
+                                            <span asp-validation-for="OrderDetailsCart.OrderHeader.DeliveryName" class="text-danger"></span>
                                         </div>
                                     </div>
+
                                     <div class="row my-1">
-                                        <div class="col-3">
-                                            <label>Phone Number</label>
-                                        </div>
+                                        <div class="col-3"><label asp-for="OrderDetailsCart.OrderHeader.PhoneNumber"></label></div>
                                         <div class="col-9">
-                                            <input id="txtPhone" asp-for="@Model.OrderDetailsCart.OrderHeader.PhoneNumber" type="text" class="form-control" />
+                                            <input id="txtPhone" asp-for="OrderDetailsCart.OrderHeader.PhoneNumber" class="form-control" />
+                                            <span asp-validation-for="OrderDetailsCart.OrderHeader.PhoneNumber" class="text-danger"></span>
                                         </div>
                                     </div>
+
                                     <div class="row my-1">
-                                        <div class="col-3">
-                                            <label>Delivery Date</label>
-                                        </div>
+                                        <div class="col-3"><label asp-for="OrderDetailsCart.OrderHeader.DeliveryDate"></label></div>
                                         <div class="col-9">
-                                            <input id="datepicker" value="" asp-for="@Model.OrderDetailsCart.OrderHeader.DeliveryDate" type="text" class="form-control" />
+                                            <input id="datepicker"
+                                                   type="date"
+                                                   asp-for="OrderDetailsCart.OrderHeader.DeliveryDate"
+                                                   value="@Model.OrderDetailsCart.OrderHeader.DeliveryDate.ToString("yyyy-MM-dd")"
+                                                   class="form-control" />
+                                            <span asp-validation-for="OrderDetailsCart.OrderHeader.DeliveryDate" class="text-danger"></span>
                                         </div>
                                     </div>
+
                                     <div class="row my-1">
-                                        <div class="col-3">
-                                            <label>Delivery Time</label>
-                                        </div>
+                                        <div class="col-3"><label asp-for="OrderDetailsCart.OrderHeader.DeliveryTime"></label></div>
                                         <div class="col-9">
-                                            <input id="timepicker" value="" asp-for="@Model.OrderDetailsCart.OrderHeader.DeliveryTime" type="text" class="form-control" />
+                                            <input id="timepicker"
+                                                   type="time"
+                                                   asp-for="OrderDetailsCart.OrderHeader.DeliveryTime"
+                                                   value="@Model.OrderDetailsCart.OrderHeader.DeliveryTime.ToString(@"HH\:mm")"
+                                                   class="form-control" />
+                                            <span asp-validation-for="OrderDetailsCart.OrderHeader.DeliveryTime" class="text-danger"></span>
                                         </div>
                                     </div>
+
                                     <div class="row my-1">
-                                        <div class="col-3">
-                                            <label>Additional Instructions: </label>
-                                        </div>
+                                        <div class="col-3"><label asp-for="OrderDetailsCart.OrderHeader.Comments"></label></div>
                                         <div class="col-9">
-                                            <textarea asp-for="@Model.OrderDetailsCart.OrderHeader.Comments" style="height:100px;" class="form-control"></textarea>
+                                            <textarea asp-for="OrderDetailsCart.OrderHeader.Comments" class="form-control" style="height:100px;"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -95,100 +102,120 @@
                                             <small class="text-info">Sales Tax (@SD.SalesTaxRate%)</small>
                                             <strong class="text-info">$@((Model.OrderDetailsCart.OrderHeader.OrderTotal * SD.SalesTaxPercent).ToString("0.00"))</strong>
                                         </li>
+                                        @if (Model.PromoApplied)
+                                        {
+                                            <li class="list-group-item d-flex justify-content-between bg-light text-success">
+                                                <small>Promo Discount (@Model.PromoCodeInput)</small>
+                                                <strong>-@Model.DiscountAmount.ToString("0.00")</strong>
+                                            </li>
+                                        }
                                         <li class="list-group-item d-flex justify-content-between bg-light">
                                             <small class="text-info">Total (USD)</small>
-                                            <strong class="text-info">$@Model.OrderDetailsCart.OrderHeader.OrderTotal.ToString("0.00")</strong>
+                                        <strong class="text-info">
+                                            $@((Model.OrderDetailsCart.OrderHeader.OrderTotal - (Model.PromoApplied ? Model.DiscountAmount : 0d)).ToString("0.00"))
+                                        </strong>
                                         </li>
                                     </ul>
+
+                                    <div class="input-group mt-2 mb-2">
+                                        @if (Model.PromoApplied)
+                                        {
+                                            <input type="text" name="PromoCodeInput" class="form-control" value="@Model.PromoCodeInput" readonly />
+                                            <button type="submit"
+                                                    asp-page-handler="RemovePromo"
+                                                    formmethod="post"
+                                                    class="btn btn-danger">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <input type="text" name="PromoCodeInput" class="form-control" placeholder="Enter promo code" value="@Model.PromoCodeInput" />
+                                            <button type="submit"
+                                                    asp-page-handler="ApplyPromo"
+                                                    formmethod="post"
+                                                    class="btn btn-primary">
+                                                Apply
+                                            </button>
+                                        }
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(Model.PromoMessage))
+                                    {
+                                        <div class="mt-2 @(Model.PromoApplied ? "text-success" : "text-danger")">
+                                            @Model.PromoMessage
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>
                     </div>
+
                     <div class="card-footer">
                         <div class="row">
                             <div class="col-12 col-md-4 offset-md-8">
                                 <div id="card-element" class="form-control my-3"></div>
                                 <div id="card-errors" role="alert" class="text-danger"></div>
-                                <button type="submit" class="btn btn-success form-control">Place Order</button>
+                                <button type="button" id="place-order" class="btn btn-success form-control">Place Order</button>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
-    }
-</form>
+    </form>
+}
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
     <script>
-        $(function () {
-            // Initialize date and time pickers
-            $("#datepicker").datepicker({ minDate: 1, maxDate: "+1W" });
-            $("#timepicker").timepicker({ 'minTime': '11:00 AM', 'maxTime': '9:00 PM', step: '30' });
-        });
-
-        // Initialize Stripe
-        const stripe = Stripe('@Stripe.Value.PublishableKey'); // Use your publishable key
+        const stripe = Stripe('@Stripe.Value.PublishableKey');
         const elements = stripe.elements();
-
-        // Create a card element
         const card = elements.create('card');
         card.mount('#card-element');
 
-        // Handle form submission
-        document.querySelector('#payment-form').addEventListener('submit', async (event) => {
-            event.preventDefault();
+        function validateInputs() {
+            const name = document.getElementById('txtName').value.trim();
+            const phone = document.getElementById('txtPhone').value.trim();
+            const dt = document.getElementById('datepicker').value.trim();
+            const tm = document.getElementById('timepicker').value.trim();
+            const err = document.getElementById('card-errors');
+            if (!dt) { err.textContent = "Please select Delivery Date."; return false; }
+            if (!tm) { err.textContent = "Please select Delivery Time."; return false; }
+            if (!name) { err.textContent = "Please enter Delivery Name."; return false; }
+            if (!phone) { err.textContent = "Please enter Phone Number."; return false; }
+            err.textContent = "";
+            return true;
+        }
 
-            // Confirm the payment with Stripe
+        document.getElementById('place-order').addEventListener('click', async () => {
+            if (!validateInputs()) return;
+
             const { paymentMethod, error } = await stripe.createPaymentMethod({
                 type: 'card',
                 card: card,
                 billing_details: {
                     name: document.getElementById('txtName').value,
-                    phone: document.getElementById('txtPhone').value,
-                },
+                    phone: document.getElementById('txtPhone').value
+                }
             });
 
             if (error) {
-                // Display error to the user
                 document.getElementById('card-errors').textContent = error.message;
-            } else {
-                // Send the payment method ID to the server
-                const form = document.querySelector('#payment-form');
-                const hiddenInput = document.createElement('input');
-                hiddenInput.setAttribute('type', 'hidden');
-                hiddenInput.setAttribute('name', 'stripeToken');
-                hiddenInput.setAttribute('value', paymentMethod.id);
-                form.appendChild(hiddenInput);
-
-                // Submit the form
-                form.submit();
+                return;
             }
+
+            const form = document.getElementById('checkout-form');
+            let hidden = document.querySelector('input[name="stripeToken"]');
+            if (!hidden) {
+                hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'stripeToken';
+                form.appendChild(hidden);
+            }
+            hidden.value = paymentMethod.id;
+            form.submit();
         });
-
-        function validateInput() {
-            var time = document.getElementById("timepicker").value;
-            var dt = document.getElementById("datepicker").value;
-            var name = document.getElementById("txtName").value;
-            var phone = document.getElementById("txtPhone").value;
-
-            if (dt.toString() == '') {
-                swal("Error", "Please select Delivery Date", "error");
-                return false;
-            }
-            if (time.toString() == '') {
-                swal("Error", "Please select Delivery Time", "error");
-                return false;
-            }
-            if (name.toString() == '') {
-                swal("Error", "Please enter a Name", "error");
-                return false;
-            }
-            if (phone.toString() == '') {
-                swal("Error", "Please enter Phone Number", "error");
-                return false;
-            }
-            return true;
-        }
     </script>
 }

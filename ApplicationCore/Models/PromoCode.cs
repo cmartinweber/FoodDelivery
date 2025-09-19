@@ -30,7 +30,7 @@ namespace ApplicationCore.Models
         [Required]
         [Range(0.01, double.MaxValue, ErrorMessage = "Discount value must be greater than 0")]
         [Display(Name = "Discount Value")]
-        public decimal DiscountValue { get; set; }
+        public double DiscountValue { get; set; }
 
         [Display(Name = "Valid From")]
         public DateTime? ValidFrom { get; set; }
@@ -40,7 +40,7 @@ namespace ApplicationCore.Models
 
         [Range(0, int.MaxValue, ErrorMessage = "Minimum order value must be non-negative")]
         [Display(Name = "Minimum Order Value")]
-        public decimal? MinimumOrderValue { get; set; }
+        public double? MinimumOrderValue { get; set; }
 
         [Range(0, int.MaxValue, ErrorMessage = "Uses remaining must be non-negative")]
         [Display(Name = "Uses Remaining")]
