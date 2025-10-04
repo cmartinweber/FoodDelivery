@@ -61,7 +61,7 @@ namespace FoodDelivery.Pages.Customer.Cart
 
             var discount = promo.DiscountType == DiscountType.FixedAmount
                 ? (double)promo.DiscountValue
-                : orderTotal * (double)promo.DiscountValue;
+                : orderTotal * (double)(promo.DiscountValue / 100);
 
             if (promo.UsesRemaining.HasValue && promo.UsesRemaining > 0)
             {
