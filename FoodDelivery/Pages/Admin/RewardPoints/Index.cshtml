@@ -1,0 +1,33 @@
+﻿@page
+@model FoodDelivery.Pages.Admin.RewardPoints.IndexModel
+@{
+    ViewData["Title"] = "Reward Points";
+}
+<div class="border backgroundWhite container p-3">
+    <div class="row pt-4">
+        <div class="col-6">
+            <h2 class="text-primary">Reward Points</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-page="Upsert" asp-route-id="0" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i>&nbsp;Create New
+            </a>
+        </div>
+    </div>
+    <br /><br />
+    <table class="table table-striped table-bordered" id="DT_load" style="width:100%">
+        <thead>
+            <tr>
+                <th>Points Required</th>
+                <th>Description</th>
+                <th>Promo Code</th>
+                <th>Active</th>
+                <th></th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="~/js/rewardpoint.js"></script>
+}

@@ -26,6 +26,8 @@ namespace Infrastructure.Data
         public IGenericRepository<OrderHeader> _OrderHeader;
         public IGenericRepository<OrderDetails> _OrderDetails;
         public IGenericRepository<PromoCode> _PromoCode;
+        public IGenericRepository<RewardPoint> _RewardPoint;
+        public IGenericRepository<RewardUsage> _RewardUsage;
 
         public IGenericRepository<Category> Category
         {
@@ -132,6 +134,30 @@ namespace Infrastructure.Data
                     _PromoCode = new GenericRepository<PromoCode>(_dbContext);
                 }
                 return _PromoCode;
+            }
+        }
+
+        public IGenericRepository<RewardPoint> RewardPoint
+        {
+            get
+            {
+                if (_RewardPoint == null)
+                {
+                    _RewardPoint = new GenericRepository<RewardPoint>(_dbContext);
+                }
+                return _RewardPoint;
+            }
+        }
+
+        public IGenericRepository<RewardUsage> RewardUsage
+        {
+            get
+            {
+                if(_RewardUsage == null)
+                {
+                    _RewardUsage = new GenericRepository<RewardUsage>(_dbContext);
+                }
+                return _RewardUsage;
             }
         }
 

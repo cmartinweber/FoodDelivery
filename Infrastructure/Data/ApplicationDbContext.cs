@@ -20,5 +20,7 @@ namespace Infrastructure.Data
         public DbSet<OrderHeader> OrderHeader { get; set; }
         public DbSet<OrderDetails> OrderDetails { get; set; }
         public DbSet<PromoCode> PromoCode { get; set; }
+        public DbSet<RewardPoint> RewardPoint { get; set; }
+        public DbSet<RewardUsage> RewardUsage { get; set; }
     }
 }

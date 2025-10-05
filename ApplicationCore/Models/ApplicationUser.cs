@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ApplicationCore.Models
@@ -9,5 +10,8 @@ namespace ApplicationCore.Models
         public string LastName { get; set; }
         [NotMapped]
         public string FullName {  get { return FirstName + " " + LastName; } }
+
+        [Display(Name = "Loyalty Points")]
+        public int LoyaltyPoints { get; set; }
     }
 }

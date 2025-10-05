@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251004172814_UpdatedRewardsPoints")]
+    partial class UpdatedRewardsPoints
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -249,34 +252,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("PromoCode");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.RewardPoint", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("PromoCodeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ThresholdPoints")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PromoCodeId");
-
-                    b.ToTable("RewardPoint");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.RewardUsage", b =>
+            modelBuilder.Entity("ApplicationCore.Models.RewardPoints", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -288,28 +264,31 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("GrantedOn")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Notified")
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("Redeemed")
+                    b.Property<bool>("IsUsed")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("RedeemedOn")
-                        .HasColumnType("datetime2");
+                    b.Property<int?>("PromoCodeId")
+                        .HasColumnType("int");
 
-                    b.Property<int>("RewardPointsId")
+                    b.Property<int>("ThresholdPoints")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.HasIndex("RewardPointsId");
+                    b.HasIndex("PromoCodeId");
 
-                    b.ToTable("RewardUsage");
+                    b.ToTable("RewardPoints");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.ShoppingCart", b =>
@@ -620,16 +599,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("ApplicationUser");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.RewardPoint", b =>
-                {
-                    b.HasOne("ApplicationCore.Models.PromoCode", "PromoCode")
-                        .WithMany()
-                        .HasForeignKey("PromoCodeId");
-
-                    b.Navigation("PromoCode");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.RewardUsage", b =>
+            modelBuilder.Entity("ApplicationCore.Models.RewardPoints", b =>
                 {
                     b.HasOne("ApplicationCore.Models.ApplicationUser", "ApplicationUser")
                         .WithMany()
@@ -637,15 +607,13 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ApplicationCore.Models.RewardPoint", "RewardPoints")
+                    b.HasOne("ApplicationCore.Models.PromoCode", "PromoCode")
                         .WithMany()
-                        .HasForeignKey("RewardPointsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PromoCodeId");
 
                     b.Navigation("ApplicationUser");
 
-                    b.Navigation("RewardPoints");
+                    b.Navigation("PromoCode");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
