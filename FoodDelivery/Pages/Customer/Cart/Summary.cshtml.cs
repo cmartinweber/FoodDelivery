@@ -1,18 +1,27 @@
 using ApplicationCore.Models;
 using FoodDelivery.ViewModels;
 using Infrastructure.Data;
+using Infrastructure.Services;
 using Infrastructure.Utilities;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Stripe;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace FoodDelivery.Pages.Customer.Cart
 {
     public class SummaryModel : PageModel
     {
         private readonly UnitOfWork _unitOfWork;
-        public SummaryModel(UnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+        private readonly IEmailSender _emailSender;
+        public SummaryModel(UnitOfWork unitOfWork, IEmailSender emailSender)
+        {
+            _unitOfWork = unitOfWork;
+            _emailSender = emailSender;
+        }
+
 
         [BindProperty]
         public OrderDetailsCartVM OrderDetailsCart { get; set; }
@@ -63,6 +72,27 @@ namespace FoodDelivery.Pages.Customer.Cart
                 ? (double)promo.DiscountValue
                 : orderTotal * (double)(promo.DiscountValue / 100);
 
+            var userId = OrderDetailsCart.OrderHeader.UserId;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var requestedReward = _unitOfWork.RewardPoint.Get(r => r.PromoCodeId == promo.Id && r.IsActive);
+                if (requestedReward != null)
+                {
+                    var requestedUsage = _unitOfWork.RewardUsage.Get(r => r.ApplicationUserId == userId && r.RewardPointsId == requestedReward.Id);
+
+                    if (requestedUsage == null)
+                        return RedirectToPage(new { PromoApplied = false, DiscountAmount = 0d, PromoMessage = "You are not eligible to use this code", PromoCodeInput });
+
+                    if (requestedUsage.Redeemed)
+                        return RedirectToPage(new { PromoApplied = false, DiscountAmount = 0d, PromoMessage = "You have already used this code previously", PromoCodeInput });
+
+                    requestedUsage.Redeemed = true;
+                    requestedUsage.RedeemedOn = DateTime.Now;
+                    _unitOfWork.RewardUsage.Update(requestedUsage);
+                    _unitOfWork.Commit();
+                }
+            }
+
             if (promo.UsesRemaining.HasValue && promo.UsesRemaining > 0)
             {
                 promo.UsesRemaining -= 1;
@@ -70,14 +100,19 @@ namespace FoodDelivery.Pages.Customer.Cart
                 _unitOfWork.Commit();
             }
 
+            var savingsText = promo.DiscountType == DiscountType.Percentage
+                ? $"{promo.DiscountValue:0.0}%"
+                : $"{promo.DiscountValue:C}";
+
             return RedirectToPage(new
             {
                 PromoApplied = true,
                 DiscountAmount = discount,
-                PromoMessage = $"Promo code applied. You saved {discount:C}",
+                PromoMessage = $"Promo code applied. You saved {savingsText}",
                 PromoCodeInput = promo.Code
             });
         }
+
 
         public IActionResult OnPostRemovePromo()
         {
@@ -118,7 +153,7 @@ namespace FoodDelivery.Pages.Customer.Cart
                 {
                     DiscountAmount = promo.DiscountType == DiscountType.FixedAmount
                         ? (double)promo.DiscountValue
-                        : subtotalWithTax * (double)promo.DiscountValue;
+                        : subtotalWithTax * ((double)promo.DiscountValue/100);
                 }
             }
 
@@ -176,8 +211,15 @@ namespace FoodDelivery.Pages.Customer.Cart
                 var paymentIntent = paymentIntentService.Create(paymentIntentOptions);
 
                 OrderDetailsCart.OrderHeader.TransactionId = paymentIntent.Id;
-                OrderDetailsCart.OrderHeader.PaymentStatus =
-                    paymentIntent.Status == "succeeded" ? SD.PaymentStatusApproved : SD.PaymentStatusRejected;
+                if (paymentIntent.Status == "succeeded")
+                {
+                    OrderDetailsCart.OrderHeader.PaymentStatus = SD.PaymentStatusApproved;
+                    HandleRewardPoints();
+                }
+                else
+                {
+                    OrderDetailsCart.OrderHeader.PaymentStatus = SD.PaymentStatusRejected;
+                }
             }
 
             _unitOfWork.Commit();
@@ -225,6 +267,71 @@ namespace FoodDelivery.Pages.Customer.Cart
             OrderDetailsCart.OrderHeader.PhoneNumber = applicationUser?.PhoneNumber;
             OrderDetailsCart.OrderHeader.DeliveryTime = DateTime.Now;
             OrderDetailsCart.OrderHeader.DeliveryDate = DateTime.Now;
+        }
+
+        private void HandleRewardPoints()
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            if (claim == null) return;
+
+            var user = _unitOfWork.ApplicationUser.Get(u => u.Id == claim.Value);
+            if (user == null) return;
+            int loyaltyPointsBeforeAddition = user.LoyaltyPoints;
+            int loyaltyPoints = (int)(Math.Floor(OrderDetailsCart.OrderHeader.OrderTotal));
+            if(loyaltyPoints < 1) return;
+            user.LoyaltyPoints += loyaltyPoints;
+            loyaltyPoints = user.LoyaltyPoints;
+            _unitOfWork.ApplicationUser.Update(user);
+            _unitOfWork.Commit();
+
+            var earnedRewards = _unitOfWork.RewardPoint.List(r => r.IsActive &&
+                r.ThresholdPoints > loyaltyPointsBeforeAddition &&
+                r.ThresholdPoints <= loyaltyPoints)
+                .OrderBy(r => r.ThresholdPoints).ToList();
+
+            foreach(var reward in earnedRewards)
+            {
+                var alreadyProccessedReward = _unitOfWork.RewardUsage.Get(x =>
+                    x.ApplicationUserId == claim.Value &&
+                    x.RewardPointsId == reward.Id);
+
+                if (alreadyProccessedReward != null) continue;
+
+                var usage = new RewardUsage
+                {
+                    ApplicationUserId = claim.Value,
+                    RewardPointsId = reward.Id,
+                    Notified = false,
+                    Redeemed = false
+                };
+
+                _unitOfWork.RewardUsage.Add(usage);
+                _unitOfWork.Commit();
+
+                if (reward.PromoCodeId.HasValue)
+                {
+                    var promo = _unitOfWork.PromoCode.Get(p => p.Id == reward.PromoCodeId.Value);
+                    if (promo != null)
+                    {
+                        var savingsText = promo.DiscountType == DiscountType.Percentage
+                        ? $"{promo.DiscountValue:0.0}%"
+                        : $"{promo.DiscountValue:C}";
+
+                        _emailSender.SendEmailAsync(
+                            user.Email,
+                            "You’ve Earned a Reward!",
+                            $"You crossed {reward.ThresholdPoints} points and earned {savingsText} off. " +
+                            $"Use code: {promo.Code}."
+                        ).GetAwaiter().GetResult();
+
+
+                        usage.Notified = true;
+                        _unitOfWork.RewardUsage.Update(usage);
+                        _unitOfWork.Commit();
+                    }
+                }
+            }
         }
     }
 }

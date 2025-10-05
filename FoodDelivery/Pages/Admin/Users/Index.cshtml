@@ -21,6 +21,7 @@
                 <th scope="col">Full Name</th>
                 <th scope="col">E-Mail</th>
                 <th scope="col">Phone Number</th>
+                <th scope="col">Reward Points</th>
                 <th scope="col">Role(s)</th>
                 <th scope="col">Lock/Unlock</th>
                 <th scope="col">Actions</th>
@@ -35,6 +36,7 @@
                         <td>@user.FullName</td>
                         <td>@user.Email</td>
                         <td>@user.PhoneNumber</td>
+                        <td>@user.LoyaltyPoints</td>
                         <td>
                             @{
                                 if (Model.UserRoles[user.Id].Count() == 1)

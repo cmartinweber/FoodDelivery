@@ -17,6 +17,8 @@ namespace ApplicationCore.Interfaces
         public IGenericRepository<OrderHeader> OrderHeader { get; }
         public IGenericRepository<OrderDetails> OrderDetails { get; }
         public IGenericRepository<PromoCode> PromoCode { get; }
+        public IGenericRepository<RewardPoint> RewardPoint { get; }
+        public IGenericRepository<RewardUsage> RewardUsage { get; }
 
         //save changes to data source
         int Commit();

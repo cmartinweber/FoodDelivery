@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251004211239_UpdateRewardValue")]
+    partial class UpdateRewardValue
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -249,7 +252,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("PromoCode");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.RewardPoint", b =>
+            modelBuilder.Entity("ApplicationCore.Models.RewardPoints", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -273,7 +276,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("PromoCodeId");
 
-                    b.ToTable("RewardPoint");
+                    b.ToTable("RewardPoints");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.RewardUsage", b =>
@@ -620,7 +623,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("ApplicationUser");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.RewardPoint", b =>
+            modelBuilder.Entity("ApplicationCore.Models.RewardPoints", b =>
                 {
                     b.HasOne("ApplicationCore.Models.PromoCode", "PromoCode")
                         .WithMany()
@@ -637,7 +640,7 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ApplicationCore.Models.RewardPoint", "RewardPoints")
+                    b.HasOne("ApplicationCore.Models.RewardPoints", "RewardPoints")
                         .WithMany()
                         .HasForeignKey("RewardPointsId")
                         .OnDelete(DeleteBehavior.Cascade)
